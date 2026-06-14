@@ -1,20 +1,17 @@
-from flask import Flask, request, jsonify, render_template, make_response, send_from_directory
+from flask import Flask, request, jsonify, make_response, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import (LoginManager, UserMixin, login_user, logout_user,
                          login_required, current_user)
 from flask_bcrypt import Bcrypt
 import sys, os, json
-from urllib.parse import quote_plus
 
 sys.path.insert(0, os.path.dirname(__file__))
 from models import simulate_model
 
 basedir = os.path.abspath(os.path.dirname(__file__))
-static_folder_path = os.path.join(basedir, '..', 'frontend', 'build')
+static_folder = os.path.join(basedir, '..', 'frontend', 'build')
+app = Flask(__name__, static_folder=static_folder, static_url_path='/')
 
-app = Flask(__name__, static_folder=static_folder_path, static_url_path='/')
-
-# CORS
 @app.after_request
 def add_cors_headers(response):
     response.headers['Access-Control-Allow-Origin'] = '*'
@@ -33,7 +30,6 @@ app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 app.config['SESSION_COOKIE_SECURE'] = False
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 
-# База данных SQLite
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'simulations.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
@@ -43,7 +39,7 @@ login_manager.init_app(app)
 login_manager.unauthorized_handler = lambda: (jsonify({"error": "Unauthorized"}), 401)
 bcrypt = Bcrypt(app)
 
-# Модели
+# ---------- Модели ----------
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
@@ -91,7 +87,7 @@ def load_user(user_id):
 with app.app_context():
     db.create_all()
 
-# Валидация
+# ---------- Валидация ----------
 def validate_parameters(model_type, method_type, initial_s, initial_e, initial_i,
                         initial_h, beta, sigma, gamma, rho, delta, mu,
                         time, population, step_size, custom_code=None):
@@ -122,7 +118,7 @@ def validate_parameters(model_type, method_type, initial_s, initial_e, initial_i
         errors.append("Для кастомного метода необходимо ввести код.")
     return errors
 
-# Маршруты аутентификации
+# ---------- Аутентификация ----------
 @app.route('/register', methods=['POST'])
 def register():
     data = request.get_json()
@@ -159,11 +155,7 @@ def get_current_user():
         return jsonify({"user_id": current_user.id, "username": current_user.username})
     return jsonify(None)
 
-# Симуляция
-@app.route('/')
-def index():
-    return render_template('index.html')
-
+# ---------- Симуляция ----------
 @app.route('/simulate', methods=['POST'])
 def simulate():
     data = request.get_json()
@@ -266,7 +258,7 @@ def compare():
 
     return jsonify(results_list)
 
-# Сохранение / загрузка одиночных симуляций
+# ---------- Сохранение / загрузка ----------
 @app.route('/save_simulation', methods=['POST'])
 @login_required
 def save_simulation():
@@ -322,7 +314,6 @@ def delete_simulation(sim_id):
     db.session.commit()
     return jsonify({"message": "Симуляция удалена"})
 
-# Сохранение / загрузка сравнений
 @app.route('/save_comparison', methods=['POST'])
 @login_required
 def save_comparison():
@@ -374,6 +365,7 @@ def delete_comparison(comp_id):
     db.session.commit()
     return jsonify({"message": "Сравнение удалено"})
 
+# ---------- Раздача React ----------
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
 def catch_all(path):
