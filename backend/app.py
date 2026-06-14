@@ -4,7 +4,11 @@ from flask_login import (LoginManager, UserMixin, login_user, logout_user,
                          login_required, current_user)
 from flask_bcrypt import Bcrypt
 from models import simulate_model
-import os, json
+import sys, os, json
+from urllib.parse import quote_plus
+
+sys.path.insert(0, os.path.dirname(__file__))
+from models import simulate_model
 
 app = Flask(__name__, static_folder='../frontend/build', static_url_path='/')
 
