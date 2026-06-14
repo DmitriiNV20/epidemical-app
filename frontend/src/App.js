@@ -49,7 +49,7 @@ function App() {
   }, [mode]);
 
   useEffect(() => {
-    fetch('http://localhost:5000/current_user')
+    fetch('/current_user')
       .then(res => res.json())
       .then(data => { if (data && data.user_id) setUser(data); })
       .catch(() => {});
@@ -58,7 +58,7 @@ function App() {
   const fetchSavedSimulations = async () => {
     if (!user) return;
     try {
-      const res = await fetch('http://localhost:5000/simulations', { credentials: 'include' });
+      const res = await fetch('/simulations', { credentials: 'include' });
       if (!res.ok) throw new Error('Ошибка загрузки');
       const data = await res.json();
       setSavedSimulations(data);
@@ -68,7 +68,7 @@ function App() {
   const fetchSavedComparisons = async () => {
     if (!user) return;
     try {
-      const res = await fetch('http://localhost:5000/comparisons', { credentials: 'include' });
+      const res = await fetch('/comparisons', { credentials: 'include' });
       if (!res.ok) throw new Error('Ошибка загрузки');
       const data = await res.json();
       setSavedComparisons(data);
@@ -82,7 +82,7 @@ function App() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    const res = await fetch('http://localhost:5000/login', {
+    const res = await fetch('/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
@@ -99,7 +99,7 @@ function App() {
 
   const handleRegister = async (e) => {
     e.preventDefault();
-    const res = await fetch('http://localhost:5000/register', {
+    const res = await fetch('/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username: loginUsername, password: loginPassword })
@@ -114,7 +114,7 @@ function App() {
   };
 
   const handleLogout = async () => {
-    await fetch('http://localhost:5000/logout', { method: 'POST', credentials: 'include' });
+    await fetch('/logout', { method: 'POST', credentials: 'include' });
     setUser(null);
     setSavedSimulations([]);
     setSavedComparisons([]);
@@ -122,7 +122,7 @@ function App() {
 
   const handleSingleSimulation = async (params) => {
     try {
-      const response = await fetch('http://localhost:5000/simulate', {
+      const response = await fetch('/simulate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(params),
@@ -154,7 +154,7 @@ function App() {
       results: results
     };
     try {
-      const res = await fetch('http://localhost:5000/save_simulation', {
+      const res = await fetch('/save_simulation', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -172,7 +172,7 @@ function App() {
 
   const loadSimulationFromDB = async (id) => {
     try {
-      const res = await fetch(`http://localhost:5000/simulation/${id}`, { credentials: 'include' });
+      const res = await fetch(`/simulation/${id}`, { credentials: 'include' });
       if (!res.ok) throw new Error();
       const data = await res.json();
       setResults(data.results);
@@ -184,7 +184,7 @@ function App() {
 
   const deleteSimulation = async (id) => {
     if (!window.confirm('Удалить?')) return;
-    await fetch(`http://localhost:5000/simulation/${id}`, { method: 'DELETE', credentials: 'include' });
+    await fetch(`/simulation/${id}`, { method: 'DELETE', credentials: 'include' });
     fetchSavedSimulations();
   };
 
@@ -207,7 +207,7 @@ function App() {
       results: comparisonResults
     };
     try {
-      const res = await fetch('http://localhost:5000/save_comparison', {
+      const res = await fetch('/save_comparison', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -225,7 +225,7 @@ function App() {
 
   const loadComparisonFromDB = async (id) => {
     try {
-      const res = await fetch(`http://localhost:5000/comparison/${id}`, { credentials: 'include' });
+      const res = await fetch(`/comparison/${id}`, { credentials: 'include' });
       if (!res.ok) throw new Error();
       const data = await res.json();
       if (data.common_params) {
@@ -246,7 +246,7 @@ function App() {
 
   const deleteComparison = async (id) => {
     if (!window.confirm('Удалить?')) return;
-    await fetch(`http://localhost:5000/comparison/${id}`, { method: 'DELETE', credentials: 'include' });
+    await fetch(`/comparison/${id}`, { method: 'DELETE', credentials: 'include' });
     fetchSavedComparisons();
   };
 
@@ -333,7 +333,7 @@ function App() {
     };
 
     try {
-      const response = await fetch('http://localhost:5000/compare', {
+      const response = await fetch('/compare', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
