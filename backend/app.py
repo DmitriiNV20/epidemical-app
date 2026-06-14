@@ -3,7 +3,6 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import (LoginManager, UserMixin, login_user, logout_user,
                          login_required, current_user)
 from flask_bcrypt import Bcrypt
-from models import simulate_model
 import sys, os, json
 from urllib.parse import quote_plus
 
