@@ -9,7 +9,10 @@ from urllib.parse import quote_plus
 sys.path.insert(0, os.path.dirname(__file__))
 from models import simulate_model
 
-app = Flask(__name__, static_folder='../frontend/build', static_url_path='/')
+basedir = os.path.abspath(os.path.dirname(__file__))
+static_folder_path = os.path.join(basedir, '..', 'frontend', 'build')
+
+app = Flask(__name__, static_folder=static_folder_path, static_url_path='/')
 
 # CORS
 @app.after_request
@@ -31,7 +34,6 @@ app.config['SESSION_COOKIE_SECURE'] = False
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 
 # База данных SQLite
-basedir = os.path.abspath(os.path.dirname(__file__))
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'simulations.db')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
